@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Economic Indicators Tracker - Gunn Jaggi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #ffffff;
+            --color-text: #000000;
+            --color-text-muted: #666666;
+            --color-accent: #0066ff;
+            --color-border: #e5e5e5;
+            --color-section-bg: #fafafa;
+            --color-success: #4caf50;
+            --color-warning: #ff9800;
+            --color-danger: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-border);
+            z-index: 1000;
+            padding: 1.5rem 0;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-text);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        .back-link {
+            color: var(--color-text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--color-accent);
+            transform: translateX(-4px);
+        }
+
+        .back-link::before {
+            content: '← ';
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+            padding-top: 80px;
+            background: var(--color-text);
+            color: white;
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 6rem 3rem;
+            width: 100%;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #999;
+            max-width: 700px;
+            line-height: 1.6;
+        }
+
+        /* Main Content */
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 5rem 3rem;
+        }
+
+        .section {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 3rem;
+            margin-bottom: 2.5rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .country-selector {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .country-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--color-border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .country-btn.active {
+            background: var(--color-text);
+            border-color: var(--color-text);
+            color: white;
+        }
+
+        .country-btn:hover:not(.active) {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .indicator-card {
+            background: var(--color-section-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .indicator-card:hover {
+            border-color: var(--color-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .indicator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .indicator-label {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .trend-badge {
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .trend-up {
+            background: #e8f5e9;
+            color: var(--color-success);
+        }
+
+        .trend-down {
+            background: #ffebee;
+            color: var(--color-danger);
+        }
+
+        .trend-stable {
+            background: #fff3e0;
+            color: var(--color-warning);
+        }
+
+        .indicator-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .indicator-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .indicator-change.positive {
+            color: var(--color-success);
+        }
+
+        .indicator-change.negative {
+            color: var(--color-danger);
+        }
+
+        .indicator-date {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            margin-top: 1rem;
+        }
+
+        .chart-container {
+            margin-top: 2rem;
+            height: 350px;
+            position: relative;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .comparison-table th {
+            font-weight: 700;
+            background: var(--color-section-bg);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .comparison-table td {
+            font-weight: 500;
+        }
+
+        .flag-emoji {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--color-text);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-top: 5rem;
+        }
+
+        footer p {
+            color: #999;
+            font-size: 0.95rem;
+        }
+
+        /* Gradient animation */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero {
+            background: linear-gradient(-45deg, #000000, #1a1a1a, #000000, #0a0a0a);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .nav-container,
+            .content,
+            .hero-container {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .content {
+                padding: 3rem 1.5rem;
+            }
+
+            .section {
+                padding: 2rem;
+            }
+
+            .indicators-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="https://gunnjaggi.github.io/GunnJaggi/index.html" class="logo">Gunn Jaggi</a>
+            <a href="https://gunnjaggi.github.io/GunnJaggi/index.html#projects" class="back-link">Back to Projects</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <h1>Economic Indicators Tracker</h1>
+            <p>
+                Track and compare key economic indicators (GDP, inflation, unemployment) across major economies. 
+                Visualize trends and analyze economic health at a glance.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Country Selection -->
+        <div class="section">
+            <h2>Select Country</h2>
+            <div class="country-selector">
+                <button class="country-btn active" onclick="selectCountry('USA')">🇺🇸 United States</button>
+                <button class="country-btn" onclick="selectCountry('UK')">🇬🇧 United Kingdom</button>
+                <button class="country-btn" onclick="selectCountry('EU')">🇪🇺 Eurozone</button>
+                <button class="country-btn" onclick="selectCountry('China')">🇨🇳 China</button>
+                <button class="country-btn" onclick="selectCountry('India')">🇮🇳 India</button>
+                <button class="country-btn" onclick="selectCountry('Japan')">🇯🇵 Japan</button>
+            </div>
+        </div>
+
+        <!-- Key Indicators -->
+        <div class="section">
+            <h2 id="countryTitle">United States - Key Indicators</h2>
+            <div class="indicators-grid" id="indicatorsGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Historical Trends Chart -->
+        <div class="section">
+            <h2>GDP Growth Trend</h2>
+            <div class="chart-container">
+                <canvas id="gdpChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Inflation Trend Chart -->
+        <div class="section">
+            <h2>Inflation Rate Trend</h2>
+            <div class="chart-container">
+                <canvas id="inflationChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Country Comparison -->
+        <div class="section">
+            <h2>Global Comparison</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Country</th>
+                        <th>GDP Growth</th>
+                        <th>Inflation</th>
+                        <th>Unemployment</th>
+                        <th>Interest Rate</th>
+                    </tr>
+                </thead>
+                <tbody id="comparisonBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Gunn Jaggi. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let currentCountry = 'USA';
+        let gdpChart = null;
+        let inflationChart = null;
+
+        // Simulated economic data
+        const economicData = {
+            'USA': {
+                name: 'United States',
+                flag: '🇺🇸',
+                gdp: { value: 2.8, change: 0.3, trend: 'up' },
+                inflation: { value: 3.2, change: -0.5, trend: 'down' },
+                unemployment: { value: 3.9, change: -0.1, trend: 'down' },
+                interestRate: { value: 5.25, change: 0, trend: 'stable' },
+                consumerConfidence: { value: 102.5, change: 2.1, trend: 'up' },
+                tradeBalance: { value: -68.3, change: -2.1, trend: 'down' },
+                gdpHistory: [2.1, 2.3, 2.5, 2.6, 2.8],
+                inflationHistory: [4.2, 3.9, 3.7, 3.5, 3.2]
+            },
+            'UK': {
+                name: 'United Kingdom',
+                flag: '🇬🇧',
+                gdp: { value: 0.6, change: -0.2, trend: 'down' },
+                inflation: { value: 4.0, change: -0.8, trend: 'down' },
+                unemployment: { value: 4.2, change: 0.1, trend: 'up' },
+                interestRate: { value: 5.00, change: 0, trend: 'stable' },
+                consumerConfidence: { value: -25, change: 3, trend: 'up' },
+                tradeBalance: { value: -15.2, change: -1.5, trend: 'down' },
+                gdpHistory: [0.9, 0.8, 0.7, 0.6, 0.6],
+                inflationHistory: [6.7, 5.8, 5.1, 4.6, 4.0]
+            },
+            'EU': {
+                name: 'Eurozone',
+                flag: '🇪🇺',
+                gdp: { value: 0.8, change: 0.2, trend: 'up' },
+                inflation: { value: 2.9, change: -1.1, trend: 'down' },
+                unemployment: { value: 6.5, change: -0.2, trend: 'down' },
+                interestRate: { value: 4.00, change: 0, trend: 'stable' },
+                consumerConfidence: { value: -15.1, change: 1.5, trend: 'up' },
+                tradeBalance: { value: 22.5, change: 3.2, trend: 'up' },
+                gdpHistory: [0.4, 0.5, 0.6, 0.7, 0.8],
+                inflationHistory: [5.4, 4.8, 4.1, 3.5, 2.9]
+            },
+            'China': {
+                name: 'China',
+                flag: '🇨🇳',
+                gdp: { value: 5.2, change: -0.3, trend: 'down' },
+                inflation: { value: 0.2, change: -0.1, trend: 'down' },
+                unemployment: { value: 5.1, change: 0, trend: 'stable' },
+                interestRate: { value: 3.45, change: -0.10, trend: 'down' },
+                consumerConfidence: { value: 88.5, change: -2.3, trend: 'down' },
+                tradeBalance: { value: 78.9, change: 5.6, trend: 'up' },
+                gdpHistory: [6.1, 5.9, 5.6, 5.4, 5.2],
+                inflationHistory: [1.0, 0.7, 0.5, 0.3, 0.2]
+            },
+            'India': {
+                name: 'India',
+                flag: '🇮🇳',
+                gdp: { value: 7.6, change: 0.4, trend: 'up' },
+                inflation: { value: 5.4, change: 0.2, trend: 'up' },
+                unemployment: { value: 8.1, change: -0.3, trend: 'down' },
+                interestRate: { value: 6.50, change: 0, trend: 'stable' },
+                consumerConfidence: { value: 95.3, change: 4.2, trend: 'up' },
+                tradeBalance: { value: -23.5, change: -2.8, trend: 'down' },
+                gdpHistory: [6.8, 7.0, 7.2, 7.4, 7.6],
+                inflationHistory: [6.2, 5.9, 5.6, 5.5, 5.4]
+            },
+            'Japan': {
+                name: 'Japan',
+                flag: '🇯🇵',
+                gdp: { value: 1.2, change: 0.3, trend: 'up' },
+                inflation: { value: 2.6, change: 0.1, trend: 'up' },
+                unemployment: { value: 2.5, change: -0.1, trend: 'down' },
+                interestRate: { value: -0.10, change: 0, trend: 'stable' },
+                consumerConfidence: { value: 35.2, change: 1.8, trend: 'up' },
+                tradeBalance: { value: -1.8, change: 0.5, trend: 'up' },
+                gdpHistory: [0.6, 0.8, 0.9, 1.0, 1.2],
+                inflationHistory: [1.8, 2.0, 2.2, 2.4, 2.6]
+            }
+        };
+
+        function getTrendIcon(trend) {
+            if (trend === 'up') return '↑';
+            if (trend === 'down') return '↓';
+            return '→';
+        }
+
+        function getTrendClass(trend) {
+            if (trend === 'up') return 'trend-up';
+            if (trend === 'down') return 'trend-down';
+            return 'trend-stable';
+        }
+
+        function getChangeClass(change) {
+            if (change > 0) return 'positive';
+            if (change < 0) return 'negative';
+            return '';
+        }
+
+        function selectCountry(country) {
+            currentCountry = country;
+            
+            // Update button states
+            document.querySelectorAll('.country-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updateIndicators();
+            updateCharts();
+        }
+
+        function updateIndicators() {
+            const data = economicData[currentCountry];
+            document.getElementById('countryTitle').textContent = `${data.name} - Key Indicators`;
+            
+            const indicators = [
+                { label: 'GDP Growth', value: data.gdp.value, unit: '%', change: data.gdp.change, trend: data.gdp.trend },
+                { label: 'Inflation Rate', value: data.inflation.value, unit: '%', change: data.inflation.change, trend: data.inflation.trend },
+                { label: 'Unemployment', value: data.unemployment.value, unit: '%', change: data.unemployment.change, trend: data.unemployment.trend },
+                { label: 'Interest Rate', value: data.interestRate.value, unit: '%', change: data.interestRate.change, trend: data.interestRate.trend },
+                { label: 'Consumer Confidence', value: data.consumerConfidence.value, unit: '', change: data.consumerConfidence.change, trend: data.consumerConfidence.trend },
+                { label: 'Trade Balance', value: data.tradeBalance.value, unit: 'B', change: data.tradeBalance.change, trend: data.tradeBalance.trend }
+            ];
+
+            const grid = document.getElementById('indicatorsGrid');
+            grid.innerHTML = indicators.map(ind => `
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-label">${ind.label}</div>
+                        <div class="trend-badge ${getTrendClass(ind.trend)}">
+                            ${getTrendIcon(ind.trend)} ${ind.trend.toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="indicator-value">${ind.value}${ind.unit}</div>
+                    <div class="indicator-change ${getChangeClass(ind.change)}">
+                        ${ind.change > 0 ? '+' : ''}${ind.change}${ind.unit} from last period
+                    </div>
+                    <div class="indicator-date">Updated: Jan 2025</div>
+                </div>
+            `).join('');
+        }
+
+        function updateCharts() {
+            const data = economicData[currentCountry];
+            
+            // GDP Chart
+            if (gdpChart) gdpChart.destroy();
+            const gdpCtx = document.getElementById('gdpChart');
+            gdpChart = new Chart(gdpCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024', 'Q1 2025'],
+                    datasets: [{
+                        label: 'GDP Growth (%)',
+                        data: data.gdpHistory,
+                        borderColor: '#0066ff',
+                        backgroundColor: 'rgba(0, 102, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: false }
+                    }
+                }
+            });
+
+            // Inflation Chart
+            if (inflationChart) inflationChart.destroy();
+            const inflationCtx = document.getElementById('inflationChart');
+            inflationChart = new Chart(inflationCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024', 'Q1 2025'],
+                    datasets: [{
+                        label: 'Inflation Rate (%)',
+                        data: data.inflationHistory,
+                        borderColor: '#f44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: false }
+                    }
+                }
+            });
+        }
+
+        function updateComparison() {
+            const tbody = document.getElementById('comparisonBody');
+            const countries = ['USA', 'UK', 'EU', 'China', 'India', 'Japan'];
+            
+            tbody.innerHTML = countries.map(country => {
+                const data = economicData[country];
+                return `
+                    <tr>
+                        <td><span class="flag-emoji">${data.flag}</span><strong>${data.name}</strong></td>
+                        <td class="${getChangeClass(data.gdp.change)}">${data.gdp.value}%</td>
+                        <td class="${getChangeClass(-data.inflation.value)}">${data.inflation.value}%</td>
+                        <td class="${getChangeClass(-data.unemployment.value)}">${data.unemployment.value}%</td>
+                        <td>${data.interestRate.value}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Navbar shadow on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+            } else {
+                nav.style.boxShadow = 'none';
+            }
+        });
+
+        // Initialize
+        updateIndicators();
+        updateCharts();
+        updateComparison();
+    </script>
+</body>
+</html>
